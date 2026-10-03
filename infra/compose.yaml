@@ -1,0 +1,70 @@
+name: liqi
+
+x-env: &env
+  env_file: ../.env
+
+services:
+  postgres:
+    image: postgres:16
+    <<: *env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: { context: .., dockerfile: apps/api/Dockerfile }
+    <<: *env
+    environment: { PORT: "3001" }
+    depends_on: { postgres: { condition: service_healthy } }
+    ports: ["3001:3001"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      retries: 5
+
+  data-api:
+    build: { context: .., dockerfile: services/data/Dockerfile }
+    <<: *env
+    depends_on: { postgres: { condition: service_healthy } }
+    ports: ["8000:8000"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)",
+        ]
+      interval: 10s
+      retries: 5
+
+  web:
+    build: { context: .., dockerfile: apps/web/Dockerfile }
+    <<: *env
+    depends_on: { api: { condition: service_healthy } }
+    ports: ["3000:3000"]
+
+  data-worker: # one-shot: chạy bằng `compose run --rm`
+    build: { context: .., dockerfile: services/data/Dockerfile }
+    <<: *env
+    profiles: ["tools"] # không tự start khi `up`
+    entrypoint: []
+    volumes:
+      - rawdata:/data/raw
+    depends_on: { postgres: { condition: service_healthy } }
+
+volumes:
+  pgdata:
+  rawdata:

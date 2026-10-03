@@ -1,0 +1,32 @@
+# VCS
+.git
+.gitignore
+
+# Secrets (chỉ .env.example được giữ lại)
+.env
+.env.*
+!.env.example
+
+# Dependencies và build output (image tự cài/build lại)
+**/node_modules
+**/.next
+**/dist
+**/.venv
+**/__pycache__
+**/*.pyc
+
+# Cache công cụ
+**/.mypy_cache
+**/.ruff_cache
+**/.pytest_cache
+
+# Dữ liệu cục bộ, không đưa vào image
+raw/
+data-volumes/
+*.dump
+
+# Không cần cho build
+docs/
+infra/
+.github/
+*.md
