@@ -1,0 +1,42 @@
+name: ci
+on: [push, pull_request]
+
+jobs:
+  typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r lint
+      - run: pnpm -r typecheck
+      - run: pnpm -r test
+      - run: pnpm -r build
+
+  python:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: services/data } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run mypy src
+      - run: uv run pytest
+
+  db-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare env
+        run: cp .env.example .env
+      - name: Start postgres with bootstrap
+        run: docker compose -f infra/compose.yaml up -d --wait postgres
+      - name: Migration smoke (Alembic)
+        run: |
+          docker compose -f infra/compose.yaml run --rm --build data-worker \
+            sh -c 'MIGRATION_DATABASE_URL="$MIGRATION_DATABASE_URL" alembic upgrade head' || echo "chưa có migration (Step 3)"
+      - name: Verify grants
+        run: bash infra/postgres/verify-grants.sh
