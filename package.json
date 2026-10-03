@@ -1,0 +1,17 @@
+{
+  "name": "liqi",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "install:all": "pnpm install --frozen-lockfile && cd services/data && uv sync --frozen",
+    "dev:web": "pnpm --filter web dev",
+    "dev:api": "pnpm --filter api start:dev",
+    "dev:data-api": "cd services/data && uv run uvicorn liqi_data.main:app --reload --port 8000",
+    "lint": "pnpm -r lint && cd services/data && uv run ruff check .",
+    "typecheck": "pnpm -r typecheck && cd services/data && uv run mypy src",
+    "test": "pnpm -r test && cd services/data && uv run pytest",
+    "build": "pnpm -r build"
+  }
+}

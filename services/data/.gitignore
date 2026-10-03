@@ -1,0 +1,19 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# raw archives & data
+raw/
+data-volumes/
+*.dump
+
+# builds
+node_modules/
+.next/
+dist/
+__pycache__/
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
