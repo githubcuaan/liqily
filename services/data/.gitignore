@@ -6,6 +6,7 @@
 # raw archives & data
 raw/
 data-volumes/
+artifacts/* 
 *.dump
 
 # builds
