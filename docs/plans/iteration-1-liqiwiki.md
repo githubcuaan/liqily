@@ -91,7 +91,7 @@ docs/runbooks/liqiwiki.md
 
 Base URL: `https://arenaofvalor.fandom.com/api.php`. Every API request uses `format=json`, an explicit descriptive User-Agent, and a configurable rate starting at one request/second.
 
-- [ ] **2.1** Implement an initial `discover` CLI command. Save HTTP status, source URL/parameters, fetch time, and response body for each probe.
+- [x] **2.1** Implement an initial `discover` CLI command. Save HTTP status, source URL/parameters, fetch time, and response body for each probe.
 - [ ] **2.2** Enumerate `action=query&list=allcategories&aclimit=500`, following all continuation fields. Confirm actual categories for heroes, equipment, maps, and game modes.
 - [ ] **2.3** Verify standard MediaWiki revision, parse, section, and image APIs against sample pages. Record response shapes, supported revision selectors, and template/subpage dependencies needed for extraction.
 - [ ] **2.4** Enumerate representative category members. Identify namespace rules, redirects, subcategories, subpages, and pages that are indexes rather than entities. Configure recursive category traversal with a visited set where needed.
